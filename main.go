@@ -4,16 +4,16 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/graphql-go/graphql"
 	"github.com/graphql-go/handler"
+	"github.com/lukebrobbs/graphql-server/pkg/resolvers"
 	"github.com/lukebrobbs/graphql-server/pkg/schema"
 )
 
 func main() {
 
-	schema, err := graphql.NewSchema(graphql.SchemaConfig{
-		Query: schema.Queries(),
-	})
+	r := resolvers.New()
+	schema, err := schema.New(r)
+
 	if err != nil {
 		// panic if there is an error in schema
 		panic(err)

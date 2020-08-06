@@ -4,11 +4,36 @@ import (
 	"strconv"
 
 	"github.com/graphql-go/graphql"
-	"github.com/lukebrobbs/graphql-server/pkg/resolvers"
 	"github.com/lukebrobbs/graphql-server/pkg/types"
 )
 
-func Queries() *graphql.Object {
+type schema struct {
+	r Resolvers
+}
+
+type Schema interface {
+	Queries() *graphql.Object
+}
+
+type Resolvers interface {
+	GetPeople() []Person
+	GetPersonByID(id int) Person
+}
+type Person struct {
+	ID   int
+	Name string
+}
+
+func New(r Resolvers) (graphql.Schema, error) {
+	s := &schema{
+		r: r,
+	}
+	return graphql.NewSchema(graphql.SchemaConfig{
+		Query: s.Queries(),
+	})
+}
+
+func (s *schema) Queries() *graphql.Object {
 	queries := graphql.NewObject(
 		graphql.ObjectConfig{
 			Name: "Query",
@@ -16,7 +41,7 @@ func Queries() *graphql.Object {
 				"people": &graphql.Field{
 					Type: graphql.NewList((types.PersonType)),
 					Resolve: func(p graphql.ResolveParams) (interface{}, error) {
-						return resolvers.GetPeople(), nil
+						return s.r.GetPeople(), nil
 					},
 				},
 				"person": &graphql.Field{
@@ -32,7 +57,7 @@ func Queries() *graphql.Object {
 						if err != nil {
 							return nil, err
 						}
-						return resolvers.GetPersonByID(id), nil
+						return s.r.GetPersonByID(id), nil
 					},
 				},
 			},

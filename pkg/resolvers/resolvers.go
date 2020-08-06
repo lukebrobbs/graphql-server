@@ -1,27 +1,31 @@
 package resolvers
 
-type Person struct {
-	ID   int
-	Name string
+import "github.com/lukebrobbs/graphql-server/pkg/schema"
+
+type resolvers struct {
 }
 
-var people = []Person{
+var people = []schema.Person{
 	{
 		ID:   1,
 		Name: "Luke",
 	},
 }
 
-func GetPeople() []Person {
+func New() schema.Resolvers {
+	return &resolvers{}
+}
+
+func (r *resolvers) GetPeople() []schema.Person {
 	return people
 }
 
-func GetPersonByID(id int) Person {
+func (r *resolvers) GetPersonByID(id int) schema.Person {
 
 	for _, p := range people {
 		if p.ID == id {
 			return p
 		}
 	}
-	return Person{}
+	return schema.Person{}
 }
